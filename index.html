@@ -143,7 +143,7 @@ select{border:0;border-radius:9px;padding:11px 12px;font:inherit;font-weight:700
       <p id="bonus-message">Je krijgt elke 10 minuten 10 gratis chips. Claim ze handmatig.</p>
       <p id="bonus-timer" class="bonus-timer">Volgende bonus over: 10:00</p>
       <button id="claim-bonus" disabled>Claim bonus</button>
-      <p class="muted">De bonustimer wordt bij je account bewaard. Chips worden alleen toegevoegd als je op Claim klikt.</p>
+      <p class="muted">Je kunt maximaal 10 chips per keer claimen. De timer start opnieuw na elke claim.</p>
     </div>
   </section>
   <p class="muted" style="text-align:center;margin-top:18px">Dit is een oefenspel met virtuele chips. Er wordt niet om echt geld gespeeld.</p>
@@ -191,7 +191,6 @@ select{border:0;border-radius:9px;padding:11px 12px;font:inherit;font-weight:700
 <script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-// Gebruik hier de URL en publishable key uit je Supabase-projectinstellingen.
 const SUPABASE_URL = "https://tjtsxftppeeigrfanexu.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_I8YoEi7Jw-6CH0g3z-qXCQ_HPS17wlx";
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
@@ -215,6 +214,7 @@ let deck = [], playerHand = [], dealerHand = [];
 let currentBet = 0, gameActive = false, hideDealerCard = false;
 let saveQueue = Promise.resolve();
 let isPasswordRecovery = false;
+let isClaiming = false;
 
 function authMessage(message, isError = false) {
   $("auth-message").textContent = message;
@@ -250,16 +250,13 @@ function hidePasswordResetPanel() {
   $("auth-panel").hidden = false;
 }
 
-// Kijkt of de pagina is geopend via een herstellink (hash bevat type=recovery)
 function checkUrlForRecovery() {
   const hash = window.location.hash;
   if (!hash) return false;
   const params = new URLSearchParams(hash.substring(1));
-  const type = params.get("type");
-  return type === "recovery";
+  return params.get("type") === "recovery";
 }
 
-// Ruimt de hash op na een geslaagde reset, zodat de pagina niet opnieuw in recovery-modus gaat
 function clearRecoveryHash() {
   if (window.location.hash) {
     history.replaceState(null, "", window.location.pathname + window.location.search);
@@ -374,7 +371,6 @@ async function sendPasswordReset() {
   const email = $("email").value.trim().toLowerCase();
   if (!email) return authMessage("Vul eerst je e-mailadres in.", true);
 
-  // Gebruik de huidige pagina-URL als redirect (werkt alleen als de pagina online staat)
   const redirectUrl = window.location.href.split("#")[0].split("?")[0];
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -419,7 +415,6 @@ async function updatePassword() {
   hidePasswordResetPanel();
   authMessage("Je wachtwoord is succesvol gewijzigd. Je bent nu ingelogd.");
 
-  // Laad de spelergegevens opnieuw
   try {
     await loadPlayer();
   } catch (e) {
@@ -456,7 +451,6 @@ async function handleSession(session) {
   currentUser = session?.user ?? null;
   const loggedIn = Boolean(currentUser);
 
-  // Als we in recovery-modus zitten, toon het reset-scherm en stop hier
   if (isPasswordRecovery || checkUrlForRecovery()) {
     showPasswordResetPanel();
     return;
@@ -541,50 +535,56 @@ function updateBalance() {
   $("start").disabled = gameActive || chips < 1;
 }
 
+/* ========== BONUS: ALTIJD PRECIES 10 CHIPS ========== */
 function updateBonusTimer() {
   if (!currentUser) return;
 
   const elapsed = Date.now() - lastBonusAt;
-  const elapsedIntervals = Math.floor(elapsed / BONUS_INTERVAL);
-  const pending = elapsedIntervals * BONUS_AMOUNT;
+  const canClaim = elapsed >= BONUS_INTERVAL && !isClaiming;
   const claimBtn = $("claim-bonus");
 
-  if (pending > 0) {
-    $("bonus-message").textContent = `Je hebt ${pending} chips klaar om te claimen!`;
+  if (canClaim) {
+    $("bonus-message").textContent = "Je hebt 10 chips klaar om te claimen!";
     claimBtn.disabled = false;
-    claimBtn.textContent = `Claim ${pending} chips`;
+    claimBtn.textContent = "Claim 10 chips";
   } else {
     $("bonus-message").textContent = "Je krijgt elke 10 minuten 10 gratis chips. Claim ze handmatig.";
     claimBtn.disabled = true;
     claimBtn.textContent = "Claim bonus";
   }
 
-  const timeToNext = BONUS_INTERVAL - (elapsed % BONUS_INTERVAL);
-  const secondsLeft = Math.max(0, Math.ceil(timeToNext / 1000));
+  const timeToNext = Math.max(0, BONUS_INTERVAL - elapsed);
+  const secondsLeft = Math.ceil(timeToNext / 1000);
   $("bonus-timer").textContent = `Volgende bonus over: ${String(Math.floor(secondsLeft / 60)).padStart(2,"0")}:${String(secondsLeft % 60).padStart(2,"0")}`;
 }
 
 async function claimBonus() {
-  if (!currentUser) return;
-  const elapsedIntervals = Math.floor((Date.now() - lastBonusAt) / BONUS_INTERVAL);
-  if (elapsedIntervals <= 0) return;
+  if (!currentUser || isClaiming) return;
 
-  const earned = elapsedIntervals * BONUS_AMOUNT;
-  chips += earned;
+  const elapsed = Date.now() - lastBonusAt;
+  if (elapsed < BONUS_INTERVAL) return;
+
+  isClaiming = true;
+  const claimBtn = $("claim-bonus");
+  claimBtn.disabled = true;
+  claimBtn.textContent = "Bezig...";
+
+  // Altijd precies 10 chips
+  chips += BONUS_AMOUNT;
   lastBonusAt = Date.now();
 
   updateBalance();
-  $("bonus-message").textContent = `Bonus ontvangen: +${earned} chips!`;
-  $("claim-bonus").disabled = true;
-  $("claim-bonus").textContent = "Claim bonus";
+  $("bonus-message").textContent = "Bonus ontvangen: +10 chips!";
 
   try {
     await savePlayer();
     await refreshLeaderboard();
   } catch (error) {
-    console.error("Bonus opslaan of ranglijst verversen is mislukt:", error);
+    console.error("Bonus opslaan mislukt:", error);
+  } finally {
+    isClaiming = false;
+    updateBonusTimer();
   }
-  updateBonusTimer();
 }
 
 function makeDeck() {
@@ -712,7 +712,6 @@ $("back-to-welcome").addEventListener("click",() => {
 
 setInterval(updateBonusTimer, 1000);
 
-// Start: kijk eerst of we via een herstellink binnenkomen
 if (checkUrlForRecovery()) {
   showPasswordResetPanel();
 }
