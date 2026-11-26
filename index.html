@@ -525,68 +525,15 @@
       updateBonusTimer();
     }
 
-    // Synchroniseer alle spelacties tussen tabbladen van dezelfde speler.
-    // Web Locks zorgt ervoor dat twee tabbladen niet tegelijk een RPC uitvoeren.
-    const tabSyncChannel = typeof BroadcastChannel !== "undefined"
-      ? new BroadcastChannel("blackjack-schoolcompetitie")
-      : null;
-
-    if (tabSyncChannel) {
-      tabSyncChannel.addEventListener("message", event => {
-        const message = event.data;
-        if (
-          message?.type === "game-state-changed" &&
-          currentUser?.id &&
-          message.userId === currentUser.id
-        ) {
-          // Haal de nieuwste balans en spelstatus uit Supabase.
-          gameAction("load").catch(error => {
-            console.error("Spelstatus synchroniseren is mislukt:", error);
-          });
-        }
-      });
-    }
-
     async function gameAction(action, bet = null) {
-      if (!currentUser) throw new Error("Je bent niet ingelogd.");
+      const { data, error } = await supabase.rpc("blackjack_action", {
+        p_action: action,
+        p_bet: bet
+      });
 
-      const runAction = async () => {
-        const { data, error } = await supabase.rpc("blackjack_action", {
-          p_action: action,
-          p_bet: bet
-        });
-
-        if (error) throw error;
-        if (!data || typeof data !== "object") {
-          throw new Error("De server heeft geen geldige spelstatus teruggegeven.");
-        }
-
-        applyGameState(data);
-
-        // Alleen wijzigingen uitzenden; een load veroorzaakt geen nieuwe sync.
-        if (action !== "load") {
-          tabSyncChannel?.postMessage({
-            type: "game-state-changed",
-            userId: currentUser.id
-          });
-        }
-
-        return data;
-      };
-
-      // De locknaam is per account. Alle tabbladen op hetzelfde domein delen
-      // deze lock, zodat inzetten/kaarten/bonussen niet gelijktijdig worden verwerkt.
-      if (navigator.locks?.request) {
-        return navigator.locks.request(
-          `blackjack-game-${currentUser.id}`,
-          { mode: "exclusive" },
-          runAction
-        );
-      }
-
-      // Oudere browsers zonder Web Locks blijven werken, maar hebben geen
-      // harde tabblad-lock. BroadcastChannel houdt de weergave wel bijgewerkt.
-      return runAction();
+      if (error) throw error;
+      applyGameState(data);
+      return data;
     }
 
     async function loadPlayer() {
