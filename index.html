@@ -1,729 +1,981 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Blackjack Schoolcompetitie</title>
-<style>
-:root{--felt:#08734b;--felt-dark:#07563a;--gold:#ffd166;--ink:#17211d;--panel:rgba(0,0,0,.22)}
-*{box-sizing:border-box}
-body{margin:0;min-height:100vh;color:white;font-family:system-ui,sans-serif;background:radial-gradient(ellipse at center,#159461,var(--felt) 48%,var(--felt-dark))}
-header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px clamp(16px,4vw,42px);background:rgba(0,0,0,.22);border-bottom:1px solid rgba(255,255,255,.12)}
-h1{margin:0;font-size:clamp(1.35rem,4vw,2rem)}
-.balance{background:#14251e;border:1px solid var(--gold);border-radius:999px;padding:9px 16px;color:var(--gold);font-weight:800}
-main{width:min(1000px,94vw);margin:24px auto 40px}
-.welcome-screen{width:min(850px,94vw);margin:40px auto}
-.welcome-card{background:rgba(0,0,0,.25);border:2px solid var(--gold);border-radius:20px;padding:clamp(20px,5vw,35px);text-align:center;box-shadow:0 12px 30px rgba(0,0,0,.25)}
-.welcome-card h2{color:var(--gold);font-size:clamp(1.7rem,5vw,2.6rem);margin:0 0 20px}
-.welcome-description{font-size:1.08rem;line-height:1.8}
-.warning{color:var(--gold);font-weight:900;font-size:1.15rem;margin:24px 0}
-.privacy-note{margin-top:20px;padding:12px;background:rgba(0,0,0,.2);border-radius:10px;font-size:.88rem;line-height:1.5;color:rgba(255,255,255,.8)}
-.auth-panel{max-width:430px;margin:22px auto 0;padding:18px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.2);border-radius:14px;text-align:left}
-.auth-panel h3{margin:0 0 12px;color:var(--gold)}
-input{width:100%;padding:12px;border:0;border-radius:8px;margin:6px 0 10px;font:inherit}
-.auth-actions{display:flex;flex-wrap:wrap;gap:8px}
-.auth-actions button{flex:1}
-.auth-message{min-height:24px;font-size:.9rem;margin-top:8px}
-.table{min-height:430px;padding:clamp(18px,4vw,34px);border:8px solid #704523;border-radius:28px;background:radial-gradient(ellipse at center,#159a63,#08734b 72%);text-align:center;box-shadow:0 16px 35px rgba(0,0,0,.32)}
-.status{display:inline-block;min-height:26px;margin-bottom:18px;color:#fff3c4;font-weight:700}
-.hand{margin:18px 0 28px}
-.hand h2{margin:0 0 12px;font-size:1.05rem}
-.cards{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;min-height:112px}
-.card{width:70px;height:102px;border-radius:9px;background:white;color:#171717;box-shadow:0 4px 8px rgba(0,0,0,.25);display:flex;flex-direction:column;justify-content:space-between;padding:7px;font-weight:800;text-align:left}
-.card.red{color:#d52335}.card .middle{align-self:center;font-size:2rem;line-height:1}.card .bottom{align-self:flex-end;transform:rotate(180deg)}
-.card.back{background:repeating-linear-gradient(45deg,#173d80,#173d80 6px,#244f9c 6px,#244f9c 12px);border:3px solid white;color:white;justify-content:center;align-items:center;font-size:2rem}
-.controls{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:20px 0}
-button{border:0;border-radius:10px;padding:12px 20px;min-width:112px;font:inherit;font-weight:800;cursor:pointer;color:#17211d;background:var(--gold);box-shadow:0 4px 0 #b8872c}
-button:hover{filter:brightness(1.08)}button:active{transform:translateY(3px)}button:disabled{opacity:.4;cursor:not-allowed;filter:grayscale(1)}
-button.secondary{background:#e9f0ec;box-shadow:0 4px 0 #a7b6ad}
-.bet-row{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:10px}
-.bet-row label{font-weight:700}
-select{border:0;border-radius:9px;padding:11px 12px;font:inherit;font-weight:700;background:white;color:var(--ink)}
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
-.info{background:var(--panel);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:16px}
-.info h3{margin:0 0 8px;color:var(--gold)}.info p{margin:4px 0}
-.muted{color:rgba(255,255,255,.75);font-size:.9rem}
-.bonus-timer{color:var(--gold);font-size:1.35rem;font-weight:900;font-variant-numeric:tabular-nums;margin-top:10px!important}
-#welcome-screen[hidden],#game-screen[hidden]{display:none!important}
-#leaderboard{padding-left:22px;line-height:1.8}
-@media(max-width:560px){header{align-items:flex-start;flex-direction:column}.table{border-width:5px}.card{width:58px;height:86px}.card .middle{font-size:1.6rem}.info-grid{grid-template-columns:1fr}button{flex:1 1 40%}}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blackjack Schoolcompetitie</title>
 
-.site-footer{width:min(1000px,94vw);margin:0 auto 14px;padding:0 8px;text-align:center;color:rgba(255,255,255,.65);font-size:.76rem}
-.site-footer button{display:inline;min-width:0;padding:2px 5px;border:0;border-radius:4px;background:transparent;box-shadow:none;color:rgba(255,255,255,.78);font:inherit;font-weight:700;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
-.site-footer button:hover{color:var(--gold);filter:none}
-#terms-dialog{width:min(680px,calc(100vw - 28px));max-height:82vh;padding:0;border:1px solid rgba(255,255,255,.22);border-radius:16px;background:#123b2b;color:white;box-shadow:0 18px 60px rgba(0,0,0,.5)}
-#terms-dialog::backdrop{background:rgba(0,0,0,.68)}
-.terms-content{max-height:82vh;overflow-y:auto;padding:clamp(18px,4vw,28px);line-height:1.6}
-.terms-content h2,.terms-content h3{color:var(--gold);margin-top:0}
-.terms-content h3{margin:18px 0 5px;font-size:1rem}
-.terms-content p{margin:7px 0}
-.terms-actions{display:flex;justify-content:flex-end;margin-top:20px}
-.terms-actions button{min-width:100px}
+  <style>
+    :root {
+      --felt: #08734b;
+      --felt-dark: #07563a;
+      --gold: #ffd166;
+      --ink: #17211d;
+      --panel: rgba(0, 0, 0, .22);
+    }
 
-#claim-bonus{margin-top:12px;width:100%}
-</style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: white;
+      font-family: system-ui, sans-serif;
+      background: radial-gradient(ellipse at center, #159461, var(--felt) 48%, var(--felt-dark));
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 16px clamp(16px, 4vw, 42px);
+      background: rgba(0, 0, 0, .22);
+      border-bottom: 1px solid rgba(255, 255, 255, .12);
+    }
+
+    h1 { margin: 0; font-size: clamp(1.35rem, 4vw, 2rem); }
+
+    .balance {
+      background: #14251e;
+      border: 1px solid var(--gold);
+      border-radius: 999px;
+      padding: 9px 16px;
+      color: var(--gold);
+      font-weight: 800;
+    }
+
+    main { width: min(1000px, 94vw); margin: 24px auto 40px; }
+
+    .welcome-screen { width: min(850px, 94vw); margin: 40px auto; }
+
+    .welcome-card {
+      background: rgba(0, 0, 0, .25);
+      border: 2px solid var(--gold);
+      border-radius: 20px;
+      padding: clamp(20px, 5vw, 35px);
+      text-align: center;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, .25);
+    }
+
+    .welcome-card h2 {
+      color: var(--gold);
+      font-size: clamp(1.7rem, 5vw, 2.6rem);
+      margin: 0 0 20px;
+    }
+
+    .welcome-description { font-size: 1.08rem; line-height: 1.8; }
+    .warning { color: var(--gold); font-weight: 900; font-size: 1.15rem; margin: 24px 0; }
+
+    .privacy-note {
+      margin-top: 20px;
+      padding: 12px;
+      background: rgba(0, 0, 0, .2);
+      border-radius: 10px;
+      font-size: .88rem;
+      line-height: 1.5;
+      color: rgba(255, 255, 255, .8);
+    }
+
+    .auth-panel {
+      max-width: 430px;
+      margin: 22px auto 0;
+      padding: 18px;
+      background: rgba(0, 0, 0, .2);
+      border: 1px solid rgba(255, 255, 255, .2);
+      border-radius: 14px;
+      text-align: left;
+    }
+
+    .auth-panel h3 { margin: 0 0 12px; color: var(--gold); }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 0;
+      border-radius: 8px;
+      margin: 6px 0 10px;
+      font: inherit;
+    }
+
+    .auth-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .auth-actions button { flex: 1; }
+    .auth-message { min-height: 24px; font-size: .9rem; margin-top: 8px; }
+
+    .table {
+      min-height: 430px;
+      padding: clamp(18px, 4vw, 34px);
+      border: 8px solid #704523;
+      border-radius: 28px;
+      background: radial-gradient(ellipse at center, #159a63, #08734b 72%);
+      text-align: center;
+      box-shadow: 0 16px 35px rgba(0, 0, 0, .32);
+    }
+
+    .status {
+      display: inline-block;
+      min-height: 26px;
+      margin-bottom: 18px;
+      color: #fff3c4;
+      font-weight: 700;
+    }
+
+    .hand { margin: 18px 0 28px; }
+    .hand h2 { margin: 0 0 12px; font-size: 1.05rem; }
+
+    .cards {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      min-height: 112px;
+    }
+
+    .card {
+      width: 70px;
+      height: 102px;
+      border-radius: 9px;
+      background: white;
+      color: #171717;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, .25);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 7px;
+      font-weight: 800;
+      text-align: left;
+    }
+
+    .card.red { color: #d52335; }
+    .card .middle { align-self: center; font-size: 2rem; line-height: 1; }
+    .card .bottom { align-self: flex-end; transform: rotate(180deg); }
+
+    .card.back {
+      background: repeating-linear-gradient(45deg, #173d80, #173d80 6px, #244f9c 6px, #244f9c 12px);
+      border: 3px solid white;
+      color: white;
+      justify-content: center;
+      align-items: center;
+      font-size: 2rem;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 12px 20px;
+      min-width: 112px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      color: var(--ink);
+      background: var(--gold);
+      box-shadow: 0 4px 0 #b8872c;
+    }
+
+    button:hover { filter: brightness(1.08); }
+    button:active { transform: translateY(3px); }
+    button:disabled { opacity: .4; cursor: not-allowed; filter: grayscale(1); }
+    button.secondary { background: #e9f0ec; box-shadow: 0 4px 0 #a7b6ad; }
+
+    .bet-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .bet-row label { font-weight: 700; }
+
+    select {
+      border: 0;
+      border-radius: 9px;
+      padding: 11px 12px;
+      font: inherit;
+      font-weight: 700;
+      background: white;
+      color: var(--ink);
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .info {
+      background: var(--panel);
+      border: 1px solid rgba(255, 255, 255, .15);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .info h3 { margin: 0 0 8px; color: var(--gold); }
+    .info p { margin: 4px 0; }
+    .muted { color: rgba(255, 255, 255, .75); font-size: .9rem; }
+
+    .bonus-timer {
+      color: var(--gold);
+      font-size: 1.35rem;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      margin-top: 10px !important;
+    }
+
+    #welcome-screen[hidden], #game-screen[hidden] { display: none !important; }
+    #leaderboard { padding-left: 22px; line-height: 1.8; }
+    #claim-bonus { margin-top: 12px; width: 100%; }
+
+    .site-footer {
+      width: min(1000px, 94vw);
+      margin: 0 auto 14px;
+      padding: 0 8px;
+      text-align: center;
+      color: rgba(255, 255, 255, .65);
+      font-size: .76rem;
+    }
+
+    .site-footer button {
+      display: inline;
+      min-width: 0;
+      padding: 2px 5px;
+      border: 0;
+      border-radius: 4px;
+      background: transparent;
+      box-shadow: none;
+      color: rgba(255, 255, 255, .78);
+      font: inherit;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .site-footer button:hover { color: var(--gold); filter: none; }
+
+    #terms-dialog {
+      width: min(680px, calc(100vw - 28px));
+      max-height: 82vh;
+      padding: 0;
+      border: 1px solid rgba(255, 255, 255, .22);
+      border-radius: 16px;
+      background: #123b2b;
+      color: white;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, .5);
+    }
+
+    #terms-dialog::backdrop { background: rgba(0, 0, 0, .68); }
+    .terms-content { max-height: 82vh; overflow-y: auto; padding: clamp(18px, 4vw, 28px); line-height: 1.6; }
+    .terms-content h2, .terms-content h3 { color: var(--gold); margin-top: 0; }
+    .terms-content h3 { margin: 18px 0 5px; font-size: 1rem; }
+    .terms-content p { margin: 7px 0; }
+    .terms-actions { display: flex; justify-content: flex-end; margin-top: 20px; }
+
+    @media (max-width: 560px) {
+      header { align-items: flex-start; flex-direction: column; }
+      .table { border-width: 5px; }
+      .card { width: 58px; height: 86px; }
+      .card .middle { font-size: 1.6rem; }
+      .info-grid { grid-template-columns: 1fr; }
+      button { flex: 1 1 40%; }
+    }
+  </style>
 </head>
+
 <body>
-<header>
-  <h1>Blackjack Schoolcompetitie</h1>
-  <div class="balance">Chips: <span id="balance">—</span></div>
-</header>
+  <header>
+    <h1>Blackjack Schoolcompetitie</h1>
+    <div class="balance">Chips: <span id="balance">—</span></div>
+  </header>
 
-<main id="welcome-screen" class="welcome-screen">
-  <section class="welcome-card">
-    <h2>Welkom bij onze blackjack schoolcompetitie!</h2>
-    <div class="welcome-description">
-      <p>Welkom op onze blackjack site. Deze site is gebouwd door Liam Schaart en Samuel Sijbring. Hier kun je blackjack spelen tegen een computergestuurde dealer.</p>
-      <p>Je speelt met virtuele chips en kunt proberen zoveel mogelijk chips te verzamelen.</p>
-    </div>
-    <p class="warning">- LET OP! WEES ZUINIG MET JE CHIPS! -</p>
-    <p>Veel plezier met spelen!</p>
-
-    <section class="auth-panel" id="auth-panel">
-      <h3>Inloggen of account aanmaken</h3>
-      <label for="email">E-mailadres</label>
-      <input id="email" type="email" autocomplete="email" placeholder="jij@voorbeeld.nl">
-      <label for="password">Wachtwoord</label>
-      <input id="password" type="password" autocomplete="current-password" placeholder="Minimaal 6 tekens">
-      <div class="auth-actions">
-        <button id="login-button" type="button">Inloggen</button>
-        <button id="signup-button" class="secondary" type="button">Account maken</button>
+  <main id="welcome-screen" class="welcome-screen">
+    <section class="welcome-card">
+      <h2>Welkom bij onze blackjack schoolcompetitie!</h2>
+      <div class="welcome-description">
+        <p>Welkom op onze blackjack site. Deze site is gebouwd door Liam Schaart en Samuel Sijbring. Hier kun je blackjack spelen tegen een computergestuurde dealer.</p>
+        <p>Je speelt met virtuele chips en kunt proberen zoveel mogelijk chips te verzamelen.</p>
       </div>
-      <button id="forgot-password-button" class="secondary" type="button" style="width:100%;margin-top:10px">Wachtwoord vergeten?</button>
-      <p id="auth-message" class="auth-message" role="status"></p>
+
+      <p class="warning">- LET OP! WEES ZUINIG MET JE CHIPS! -</p>
+      <p>Veel plezier met spelen!</p>
+
+      <section class="auth-panel" id="auth-panel">
+        <h3>Inloggen of account aanmaken</h3>
+        <label for="email">E-mailadres</label>
+        <input id="email" type="email" autocomplete="email" placeholder="jij@voorbeeld.nl">
+        <label for="password">Wachtwoord</label>
+        <input id="password" type="password" autocomplete="current-password" placeholder="Minimaal 6 tekens">
+        <div class="auth-actions">
+          <button id="login-button" type="button">Inloggen</button>
+          <button id="signup-button" class="secondary" type="button">Account maken</button>
+        </div>
+        <button id="forgot-password-button" class="secondary" type="button" style="width:100%;margin-top:10px">
+          Wachtwoord vergeten?
+        </button>
+        <p id="auth-message" class="auth-message" role="status"></p>
+      </section>
+
+      <section class="auth-panel" id="password-reset-panel" hidden>
+        <h3>Nieuw wachtwoord instellen</h3>
+        <p class="muted">Kies hieronder een nieuw wachtwoord.</p>
+        <label for="new-password">Nieuw wachtwoord</label>
+        <input id="new-password" type="password" autocomplete="new-password" placeholder="Minimaal 6 tekens">
+        <label for="confirm-new-password">Herhaal nieuw wachtwoord</label>
+        <input id="confirm-new-password" type="password" autocomplete="new-password" placeholder="Herhaal je nieuwe wachtwoord">
+        <div class="auth-actions">
+          <button id="save-new-password-button" type="button">Wachtwoord opslaan</button>
+        </div>
+        <p id="password-reset-message" class="auth-message" role="status"></p>
+      </section>
+
+      <div class="welcome-start">
+        <button id="start-playing" disabled>Start met spelen</button>
+        <button id="logout-button" class="secondary" hidden>Uitloggen</button>
+      </div>
+
+      <div class="privacy-note">
+        Je speelt uitsluitend met virtuele chips. Je persoonlijke saldo wordt aan je ingelogde account gekoppeld en online opgeslagen.
+      </div>
+    </section>
+  </main>
+
+  <main id="game-screen" hidden>
+    <section class="table">
+      <div class="status" id="status">Kies je inzet en start een spel!</div>
+
+      <div class="hand">
+        <h2>Dealer <span id="dealer-total"></span></h2>
+        <div class="cards" id="dealer-cards"></div>
+      </div>
+
+      <div class="hand">
+        <h2>Jij <span id="player-total"></span></h2>
+        <div class="cards" id="player-cards"></div>
+      </div>
+
+      <div class="bet-row">
+        <label for="bet">Je inzet:</label>
+        <select id="bet">
+          <option value="1">1 chip</option>
+          <option value="2">2 chips</option>
+          <option value="5">5 chips</option>
+          <option value="10">10 chips</option>
+        </select>
+      </div>
+
+      <div class="controls">
+        <button id="start">Start spel</button>
+        <button id="hit" disabled>Hit</button>
+        <button id="stand" disabled>Stand</button>
+      </div>
+
+      <button id="back-to-welcome" class="secondary">Terug naar welkom</button>
     </section>
 
-    <section class="auth-panel" id="password-reset-panel" hidden>
-      <h3>Nieuw wachtwoord instellen</h3>
-      <p class="muted" style="margin-bottom:12px">Kies hieronder een nieuw wachtwoord.</p>
-      <label for="new-password">Nieuw wachtwoord</label>
-      <input id="new-password" type="password" autocomplete="new-password" placeholder="Minimaal 6 tekens">
-      <label for="confirm-new-password">Herhaal nieuw wachtwoord</label>
-      <input id="confirm-new-password" type="password" autocomplete="new-password" placeholder="Herhaal je nieuwe wachtwoord">
-      <div class="auth-actions">
-        <button id="save-new-password-button" type="button">Wachtwoord opslaan</button>
+    <section class="info-grid">
+      <div class="info">
+        <h3>Online ranglijst</h3>
+        <p class="muted">De ranglijst toont de naam en actuele chipbalans van iedere speler.</p>
+        <ol id="leaderboard"><li>Ranglijst laden…</li></ol>
       </div>
-      <p id="password-reset-message" class="auth-message" role="status"></p>
+
+      <div class="info">
+        <h3>Bonus elke 10 minuten</h3>
+        <p id="bonus-message">Je krijgt elke 10 minuten 10 gratis chips. Claim ze handmatig.</p>
+        <p id="bonus-timer" class="bonus-timer">Volgende bonus over: 10:00</p>
+        <button id="claim-bonus" disabled>Claim bonus</button>
+        <p class="muted">Je kunt maximaal 10 chips per keer claimen. De timer start opnieuw na elke claim.</p>
+      </div>
     </section>
 
-    <div class="welcome-start">
-      <button id="start-playing" disabled>Start met spelen</button>
-      <button id="logout-button" class="secondary" hidden>Uitloggen</button>
+    <p class="muted" style="text-align:center;margin-top:18px">
+      Dit is een oefenspel met virtuele chips. Er wordt niet om echt geld gespeeld.
+    </p>
+  </main>
+
+  <footer class="site-footer">
+    <button id="terms-open" type="button" aria-haspopup="dialog" aria-controls="terms-dialog">Terms of Service</button>
+    <span> · Educatieve simulatie met uitsluitend virtuele chips</span>
+  </footer>
+
+  <dialog id="terms-dialog" aria-labelledby="terms-title">
+    <div class="terms-content">
+      <h2 id="terms-title">Terms of Service – Gebruiksvoorwaarden</h2>
+      <p><strong>Laatste bijgewerkte versie: 17 november 2026</strong></p>
+
+      <h3>1. Doel van de website</h3>
+      <p>Deze website is uitsluitend bedoeld als educatieve en recreatieve simulatie om de basisregels en kansen van blackjack te leren kennen. Het is geen gokdienst en is niet bedoeld om mee te gokken.</p>
+
+      <h3>2. Geen echt geld of prijzen</h3>
+      <p>Alle chips en scores zijn uitsluitend virtuele punten. Ze hebben geen geldwaarde, kunnen niet worden gekocht, verkocht, overgedragen of ingewisseld en geven geen recht op geld, goederen of prijzen.</p>
+
+      <h3>3. Geen aanmoediging tot gokken</h3>
+      <p>De makers moedigen gokken niet aan. Gebruik deze website niet om te gokken of om weddenschappen met anderen af te sluiten.</p>
+
+      <h3>4. Accounts en ranglijst</h3>
+      <p>Gebruik voor de openbare ranglijst een bijnaam en geen volledige echte naam of andere persoonlijke informatie. Houd je wachtwoord geheim.</p>
+
+      <h3>5. Beschikbaarheid en gegevens</h3>
+      <p>We proberen de website goed te laten werken, maar kunnen niet garanderen dat de website altijd beschikbaar is of dat scores en accountgegevens nooit verloren gaan.</p>
+
+      <h3>6. Aansprakelijkheid</h3>
+      <p>Voor zover de wet dit toestaat, zijn de makers niet aansprakelijk voor indirecte schade of verlies van voortgang of virtuele scores als gevolg van storingen of onderbrekingen. Wettelijke rechten die niet mogen worden uitgesloten blijven gelden.</p>
+
+      <h3>7. Gebruik van de website</h3>
+      <p>Door de website te gebruiken, ga je ermee akkoord deze alleen als educatieve simulatie te gebruiken en geen pogingen te doen de website, accounts of ranglijst te misbruiken.</p>
+
+      <p class="muted">Deze gebruiksvoorwaarden zijn algemene tekst en geen juridisch advies.</p>
+
+      <div class="terms-actions">
+        <button id="terms-close" type="button">Sluiten</button>
+      </div>
     </div>
-    <div class="privacy-note">Je speelt uitsluitend met virtuele chips. Je persoonlijke saldo wordt aan je ingelogde account gekoppeld en online opgeslagen.</div>
-  </section>
-</main>
+  </dialog>
 
-<main id="game-screen" hidden>
-  <section class="table">
-    <div class="status" id="status">Kies je inzet en start een spel!</div>
-    <div class="hand"><h2>Dealer <span id="dealer-total"></span></h2><div class="cards" id="dealer-cards"></div></div>
-    <div class="hand"><h2>Jij <span id="player-total"></span></h2><div class="cards" id="player-cards"></div></div>
-    <div class="bet-row">
-      <label for="bet">Je inzet:</label>
-      <select id="bet">
-        <option value="1">1 chip</option><option value="2">2 chips</option>
-        <option value="5">5 chips</option><option value="10">10 chips</option>
-      </select>
-    </div>
-    <div class="controls">
-      <button id="start">Start spel</button><button id="hit" disabled>Hit</button><button id="stand" disabled>Stand</button>
-    </div>
-    <button id="back-to-welcome" class="secondary">Terug naar welkom</button>
-  </section>
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-  <section class="info-grid">
-    <div class="info">
-      <h3>Online ranglijst</h3>
-      <p class="muted">De ranglijst toont het e-mailadres en de actuele chipbalans van iedere speler.</p>
-      <ol id="leaderboard"><li>Ranglijst laden…</li></ol>
-    </div>
-    <div class="info">
-      <h3>Bonus elke 10 minuten</h3>
-      <p id="bonus-message">Je krijgt elke 10 minuten 10 gratis chips. Claim ze handmatig.</p>
-      <p id="bonus-timer" class="bonus-timer">Volgende bonus over: 10:00</p>
-      <button id="claim-bonus" disabled>Claim bonus</button>
-      <p class="muted">Je kunt maximaal 10 chips per keer claimen. De timer start opnieuw na elke claim.</p>
-    </div>
-  </section>
-  <p class="muted" style="text-align:center;margin-top:18px">Dit is een oefenspel met virtuele chips. Er wordt niet om echt geld gespeeld.</p>
-</main>
+    const SUPABASE_URL = "https://tjtsxftppeeigrfanexu.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_I8YoEi7Jw-6CH0g3z-qXCQ_HPS17wlx";
+    const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
+    const BONUS_INTERVAL = 10 * 60 * 1000;
+    const BONUS_AMOUNT = 10;
+    const $ = id => document.getElementById(id);
 
-<footer class="site-footer">
-  <button id="terms-open" type="button" aria-haspopup="dialog" aria-controls="terms-dialog">Terms of Service</button>
-  <span> · Educatieve simulatie met uitsluitend virtuele chips</span>
-</footer>
+    let currentUser = null;
+    let chips = 100;
+    let best = 100;
+    let displayName = "";
+    let lastBonusAt = Date.now();
+    let playerHand = [];
+    let dealerHand = [];
+    let currentBet = 0;
+    let gameActive = false;
+    let hideDealerCard = false;
+    let isPasswordRecovery = false;
+    let isClaiming = false;
 
-<dialog id="terms-dialog" aria-labelledby="terms-title">
-  <div class="terms-content">
-    <h2 id="terms-title">Terms of Service – Gebruiksvoorwaarden</h2>
-    <p><strong>Laatste bijgewerkte versie: 17 november 2026</strong></p>
+    function authMessage(message, isError = false) {
+      $("auth-message").textContent = message;
+      $("auth-message").style.color = isError ? "#ffd0d0" : "#d8ffe7";
+    }
 
-    <h3>1. Doel van de website</h3>
-    <p>Deze website is uitsluitend bedoeld als educatieve en recreatieve simulatie om de basisregels en kansen van blackjack te leren kennen. Het is geen gokdienst en is niet bedoeld om mee te gokken.</p>
+    function cleanDisplayName(value) {
+      const raw = String(value ?? "").trim();
+      if (!raw) return "";
+      const withoutDomain = raw.includes("@") ? raw.split("@")[0] : raw;
+      return withoutDomain.replace(/[<>"'`]/g, "").slice(0, 32).trim();
+    }
 
-    <h3>2. Geen echt geld of prijzen</h3>
-    <p>Alle chips en scores zijn uitsluitend virtuele punten. Ze hebben geen geldwaarde, kunnen niet worden gekocht, verkocht, overgedragen of ingewisseld en geven geen recht op geld, goederen of prijzen. Gebruik nooit echt geld of andere waardevolle zaken bij dit spel en spreek niet af om virtuele chips voor iets van waarde in te wisselen.</p>
+    function accountDisplayName() {
+      return cleanDisplayName(currentUser?.email || "Speler") || "Speler";
+    }
 
-    <h3>3. Geen aanmoediging tot gokken</h3>
-    <p>De makers moedigen gokken niet aan. Gebruik deze website niet om te gokken of om weddenschappen met anderen af te sluiten. Stop met spelen als het niet meer als een leerzame simulatie voelt.</p>
+    function setStatus(message) {
+      $("status").textContent = message;
+    }
 
-    <h3>4. Accounts en ranglijst</h3>
-    <p>Gebruik voor de openbare ranglijst een bijnaam en geen volledige echte naam of andere persoonlijke informatie. Houd je wachtwoord geheim. De ranglijst kan voor andere bezoekers zichtbaar zijn.</p>
+    function updateBalance() {
+      $("balance").textContent = chips;
 
-    <h3>5. Beschikbaarheid en gegevens</h3>
-    <p>We proberen de website goed te laten werken, maar kunnen niet garanderen dat de website altijd beschikbaar is of dat scores en accountgegevens nooit verloren gaan. Technische storingen, onderhoud of wijzigingen kunnen invloed hebben op de website en de opgeslagen virtuele chips.</p>
-
-    <h3>6. Aansprakelijkheid</h3>
-    <p>Voor zover de wet dit toestaat, zijn de makers niet aansprakelijk voor indirecte schade of verlies van voortgang of virtuele scores als gevolg van storingen, onderbrekingen of het niet beschikbaar zijn van de website. Deze bepaling sluit geen aansprakelijkheid uit die volgens dwingend recht niet mag worden uitgesloten en beperkt geen wettelijke rechten van bezoekers.</p>
-
-    <h3>7. Gebruik van de website</h3>
-    <p>Door de website te gebruiken, ga je ermee akkoord deze alleen als educatieve simulatie te gebruiken en geen pogingen te doen de website, accounts of ranglijst te misbruiken.</p>
-
-    <p class="muted">Deze gebruiksvoorwaarden zijn een algemene tekst en geen garantie dat de makers juridisch volledig beschermd zijn. Laat ze juridisch controleren voordat je de website als een officiële dienst aanbiedt.</p>
-    <div class="terms-actions">
-      <button id="terms-close" type="button">Sluiten</button>
-    </div>
-  </div>
-</dialog>
-
-<script type="module">
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-
-const SUPABASE_URL = "https://tjtsxftppeeigrfanexu.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_I8YoEi7Jw-6CH0g3z-qXCQ_HPS17wlx";
-const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-
-const SUITS = [
-  { symbol: "♠", red: false }, { symbol: "♥", red: true },
-  { symbol: "♦", red: true }, { symbol: "♣", red: false }
-];
-const RANKS = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
-const STARTING_CHIPS = 100;
-const BONUS_INTERVAL = 10 * 60 * 1000;
-const BONUS_AMOUNT = 10;
-const $ = id => document.getElementById(id);
-
-let currentUser = null;
-let chips = STARTING_CHIPS;
-let best = STARTING_CHIPS;
-let displayName = "";
-let lastBonusAt = Date.now();
-let deck = [], playerHand = [], dealerHand = [];
-let currentBet = 0, gameActive = false, hideDealerCard = false;
-let saveQueue = Promise.resolve();
-let isPasswordRecovery = false;
-let isClaiming = false;
-
-function authMessage(message, isError = false) {
-  $("auth-message").textContent = message;
-  $("auth-message").style.color = isError ? "#ffd0d0" : "#d8ffe7";
-}
-
-function cleanDisplayName(value) {
-  const raw = String(value ?? "").trim();
-  if (!raw) return "";
-  const withoutDomain = raw.includes("@") ? raw.split("@")[0] : raw;
-  return withoutDomain.replace(/[<>"'`]/g, "").slice(0, 32).trim();
-}
-
-function accountDisplayName() {
-  return cleanDisplayName(currentUser?.email || "Speler") || "Speler";
-}
-
-function showPasswordResetPanel() {
-  isPasswordRecovery = true;
-  $("welcome-screen").hidden = false;
-  $("game-screen").hidden = true;
-  $("auth-panel").hidden = true;
-  $("password-reset-panel").hidden = false;
-  $("password-reset-message").textContent = "Kies hieronder je nieuwe wachtwoord.";
-  $("password-reset-message").style.color = "#d8ffe7";
-  $("start-playing").disabled = true;
-  $("logout-button").hidden = true;
-}
-
-function hidePasswordResetPanel() {
-  isPasswordRecovery = false;
-  $("password-reset-panel").hidden = true;
-  $("auth-panel").hidden = false;
-}
-
-function checkUrlForRecovery() {
-  const hash = window.location.hash;
-  if (!hash) return false;
-  const params = new URLSearchParams(hash.substring(1));
-  return params.get("type") === "recovery";
-}
-
-function clearRecoveryHash() {
-  if (window.location.hash) {
-    history.replaceState(null, "", window.location.pathname + window.location.search);
-  }
-}
-
-async function loadPlayer() {
-  if (!currentUser) return;
-  const { data, error } = await supabase
-    .from("blackjack_players")
-    .select("chips,best,last_bonus_at,display_name")
-    .eq("user_id", currentUser.id)
-    .maybeSingle();
-
-  if (error) throw error;
-
-  displayName = accountDisplayName();
-  if (!data) {
-    const now = Date.now();
-    const { error: insertError } = await supabase
-      .from("blackjack_players")
-      .insert({
-        user_id: currentUser.id,
-        chips: STARTING_CHIPS,
-        best: STARTING_CHIPS,
-        last_bonus_at: now,
-        display_name: displayName
+      const betSelect = $("bet");
+      [...betSelect.options].forEach(option => {
+        option.disabled = Number(option.value) > chips;
       });
-    if (insertError) throw insertError;
-    chips = STARTING_CHIPS;
-    best = STARTING_CHIPS;
-    lastBonusAt = now;
-  } else {
-    chips = Math.max(0, Math.floor(Number(data.chips)));
-    best = Math.max(chips, Math.floor(Number(data.best)));
-    lastBonusAt = Number(data.last_bonus_at) > 0
-      ? Number(data.last_bonus_at)
-      : Date.now();
-    displayName = accountDisplayName();
-  }
 
-  updateBalance();
-  render();
-  await savePlayer();
-  try {
-    await refreshLeaderboard();
-  } catch (leaderboardError) {
-    console.error("Ranglijst verversen is mislukt:", leaderboardError);
-  }
-  updateBonusTimer();
-}
-
-async function savePlayer() {
-  if (!currentUser) return;
-  best = Math.max(best, chips);
-  const payload = {
-    user_id: currentUser.id,
-    chips,
-    best,
-    display_name: accountDisplayName(),
-    last_bonus_at: lastBonusAt,
-    updated_at: new Date().toISOString()
-  };
-
-  saveQueue = saveQueue.then(async () => {
-    const { error } = await supabase
-      .from("blackjack_players")
-      .upsert(payload, { onConflict: "user_id" });
-    if (error) {
-      console.error("Opslaan in Supabase is mislukt:", error);
-      setStatus("Opslaan mislukt. Controleer je internetverbinding.");
-    }
-  });
-  return saveQueue;
-}
-
-async function refreshLeaderboard() {
-  const list = $("leaderboard");
-  list.replaceChildren();
-  const { data, error } = await supabase.rpc("get_blackjack_leaderboard");
-  if (error) {
-    const li = document.createElement("li");
-    li.textContent = "Ranglijst kon niet worden geladen.";
-    list.append(li);
-    console.error(error);
-    return;
-  }
-  if (!data || data.length === 0) {
-    const li = document.createElement("li");
-    li.textContent = "Nog geen scores.";
-    list.append(li);
-    return;
-  }
-  data.forEach((entry, index) => {
-    const li = document.createElement("li");
-    const name = cleanDisplayName(entry?.display_name) || `Speler ${index + 1}`;
-    const total = Math.max(0, Math.floor(Number(entry?.chips) || 0));
-    li.textContent = `${name} — ${total} chips`;
-    list.append(li);
-  });
-}
-
-async function signIn() {
-  const email = $("email").value.trim();
-  const password = $("password").value;
-  if (!email || !password) return authMessage("Vul je e-mailadres en wachtwoord in.", true);
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) authMessage(error.message, true);
-}
-
-async function sendPasswordReset() {
-  const email = $("email").value.trim().toLowerCase();
-  if (!email) return authMessage("Vul eerst je e-mailadres in.", true);
-
-  const redirectUrl = window.location.href.split("#")[0].split("?")[0];
-
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: redirectUrl
-  });
-  if (error) {
-    authMessage("Herstelmail versturen is mislukt: " + error.message, true);
-    return;
-  }
-  authMessage("Als er een account met dit e-mailadres bestaat, is een herstelmail verstuurd. Klik op de link in de mail. Je komt dan terug op deze pagina en kunt hier een nieuw wachtwoord instellen. Controleer ook je spammap.");
-}
-
-async function updatePassword() {
-  const password = $("new-password").value;
-  const confirmation = $("confirm-new-password").value;
-  const message = $("password-reset-message");
-
-  if (password.length < 6) {
-    message.textContent = "Gebruik minimaal 6 tekens voor je nieuwe wachtwoord.";
-    message.style.color = "#ffd0d0";
-    return;
-  }
-  if (password !== confirmation) {
-    message.textContent = "De wachtwoorden komen niet overeen.";
-    message.style.color = "#ffd0d0";
-    return;
-  }
-
-  const { error } = await supabase.auth.updateUser({ password });
-  if (error) {
-    message.textContent = "Wachtwoord wijzigen is mislukt: " + error.message;
-    message.style.color = "#ffd0d0";
-    return;
-  }
-
-  message.textContent = "Je wachtwoord is gewijzigd. Je kunt nu verder.";
-  message.style.color = "#d8ffe7";
-  $("new-password").value = "";
-  $("confirm-new-password").value = "";
-
-  clearRecoveryHash();
-  hidePasswordResetPanel();
-  authMessage("Je wachtwoord is succesvol gewijzigd. Je bent nu ingelogd.");
-
-  try {
-    await loadPlayer();
-  } catch (e) {
-    console.error(e);
-  }
-}
-
-async function signUp() {
-  const email = $("email").value.trim().toLowerCase();
-  const password = $("password").value;
-  if (!email || !password) return authMessage("Vul je e-mailadres en wachtwoord in.", true);
-  if (password.length < 6) return authMessage("Gebruik minimaal 6 tekens voor je wachtwoord.", true);
-  try {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: window.location.href.split("#")[0].split("?")[0]
+      if (Number(betSelect.value) > chips) {
+        const available = [10, 5, 2, 1].find(n => n <= chips);
+        if (available) betSelect.value = String(available);
       }
+
+      $("start").disabled = gameActive || chips < 1;
+    }
+
+    function setPlayingButtons(active) {
+      $("hit").disabled = !active;
+      $("stand").disabled = !active;
+      $("start").disabled = active || chips < 1;
+    }
+
+    function applyGameState(data) {
+      chips = Math.max(0, Math.floor(Number(data.chips) || 0));
+      best = Math.max(chips, Math.floor(Number(data.best) || chips));
+      lastBonusAt = Number(data.last_bonus_at) || Date.now();
+      displayName = data.display_name || accountDisplayName();
+
+      playerHand = Array.isArray(data.player_hand) ? data.player_hand : [];
+      dealerHand = Array.isArray(data.dealer_hand) ? data.dealer_hand : [];
+      currentBet = Number(data.current_bet) || 0;
+      gameActive = Boolean(data.active);
+      hideDealerCard = gameActive;
+
+      render();
+      setPlayingButtons(gameActive);
+
+      if (data.message) setStatus(data.message);
+      updateBonusTimer();
+    }
+
+    async function gameAction(action, bet = null) {
+      const { data, error } = await supabase.rpc("blackjack_action", {
+        p_action: action,
+        p_bet: bet
+      });
+
+      if (error) throw error;
+      applyGameState(data);
+      return data;
+    }
+
+    async function loadPlayer() {
+      if (!currentUser) return;
+
+      await gameAction("load");
+
+      try {
+        await refreshLeaderboard();
+      } catch (error) {
+        console.error("Ranglijst verversen is mislukt:", error);
+      }
+    }
+
+    async function refreshLeaderboard() {
+      const list = $("leaderboard");
+      list.replaceChildren();
+
+      const { data, error } = await supabase.rpc("get_blackjack_leaderboard");
+
+      if (error) {
+        const li = document.createElement("li");
+        li.textContent = "Ranglijst kon niet worden geladen.";
+        list.append(li);
+        console.error("Ranglijst laden is mislukt:", error);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        const li = document.createElement("li");
+        li.textContent = "Nog geen scores.";
+        list.append(li);
+        return;
+      }
+
+      data.forEach((entry, index) => {
+        const li = document.createElement("li");
+        const name = cleanDisplayName(entry?.display_name) || `Speler ${index + 1}`;
+        const total = Math.max(0, Math.floor(Number(entry?.chips) || 0));
+        li.textContent = `${name} — ${total} chips`;
+        list.append(li);
+      });
+    }
+
+    function showPasswordResetPanel() {
+      isPasswordRecovery = true;
+      $("welcome-screen").hidden = false;
+      $("game-screen").hidden = true;
+      $("auth-panel").hidden = true;
+      $("password-reset-panel").hidden = false;
+      $("password-reset-message").textContent = "Kies hieronder je nieuwe wachtwoord.";
+      $("password-reset-message").style.color = "#d8ffe7";
+      $("start-playing").disabled = true;
+      $("logout-button").hidden = true;
+    }
+
+    function hidePasswordResetPanel() {
+      isPasswordRecovery = false;
+      $("password-reset-panel").hidden = true;
+      $("auth-panel").hidden = false;
+    }
+
+    function checkUrlForRecovery() {
+      const hash = window.location.hash;
+      if (!hash) return false;
+      const params = new URLSearchParams(hash.substring(1));
+      return params.get("type") === "recovery";
+    }
+
+    function clearRecoveryHash() {
+      if (window.location.hash) {
+        history.replaceState(null, "", window.location.pathname + window.location.search);
+      }
+    }
+
+    async function signIn() {
+      const email = $("email").value.trim();
+      const password = $("password").value;
+
+      if (!email || !password) {
+        authMessage("Vul je e-mailadres en wachtwoord in.", true);
+        return;
+      }
+
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) authMessage(error.message, true);
+    }
+
+    async function sendPasswordReset() {
+      const email = $("email").value.trim().toLowerCase();
+      if (!email) {
+        authMessage("Vul eerst je e-mailadres in.", true);
+        return;
+      }
+
+      const redirectUrl = window.location.href.split("#")[0].split("?")[0];
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: redirectUrl
+      });
+
+      if (error) {
+        authMessage("Herstelmail versturen is mislukt: " + error.message, true);
+        return;
+      }
+
+      authMessage("Als er een account met dit e-mailadres bestaat, is een herstelmail verstuurd. Controleer ook je spammap.");
+    }
+
+    async function updatePassword() {
+      const password = $("new-password").value;
+      const confirmation = $("confirm-new-password").value;
+      const message = $("password-reset-message");
+
+      if (password.length < 6) {
+        message.textContent = "Gebruik minimaal 6 tekens voor je nieuwe wachtwoord.";
+        message.style.color = "#ffd0d0";
+        return;
+      }
+
+      if (password !== confirmation) {
+        message.textContent = "De wachtwoorden komen niet overeen.";
+        message.style.color = "#ffd0d0";
+        return;
+      }
+
+      const { error } = await supabase.auth.updateUser({ password });
+      if (error) {
+        message.textContent = "Wachtwoord wijzigen is mislukt: " + error.message;
+        message.style.color = "#ffd0d0";
+        return;
+      }
+
+      message.textContent = "Je wachtwoord is gewijzigd. Je kunt nu verder.";
+      message.style.color = "#d8ffe7";
+      $("new-password").value = "";
+      $("confirm-new-password").value = "";
+
+      clearRecoveryHash();
+      hidePasswordResetPanel();
+      authMessage("Je wachtwoord is succesvol gewijzigd. Je bent nu ingelogd.");
+
+      try {
+        await loadPlayer();
+      } catch (error) {
+        console.error("Accountgegevens laden is mislukt:", error);
+      }
+    }
+
+    async function signUp() {
+      const email = $("email").value.trim().toLowerCase();
+      const password = $("password").value;
+
+      if (!email || !password) {
+        authMessage("Vul je e-mailadres en wachtwoord in.", true);
+        return;
+      }
+
+      if (password.length < 6) {
+        authMessage("Gebruik minimaal 6 tekens voor je wachtwoord.", true);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: window.location.href.split("#")[0].split("?")[0]
+          }
+        });
+
+        if (error) {
+          authMessage(error.message, true);
+          return;
+        }
+
+        if (data.session) {
+          authMessage("Account aangemaakt. Je bent ingelogd.");
+        } else {
+          authMessage("Account aangemaakt. Controleer je e-mail om je account te bevestigen.");
+        }
+      } catch (error) {
+        console.error("Account aanmaken is mislukt:", error);
+        authMessage("Account aanmaken is mislukt: " + (error?.message || "onbekende fout"), true);
+      }
+    }
+
+    async function handleSession(session) {
+      currentUser = session?.user ?? null;
+      const loggedIn = Boolean(currentUser);
+
+      if (isPasswordRecovery || checkUrlForRecovery()) {
+        showPasswordResetPanel();
+        return;
+      }
+
+      $("start-playing").disabled = !loggedIn;
+      $("logout-button").hidden = !loggedIn;
+      $("auth-panel").hidden = loggedIn;
+
+      if (!loggedIn) {
+        $("game-screen").hidden = true;
+        $("welcome-screen").hidden = false;
+        $("balance").textContent = "—";
+        gameActive = false;
+        setPlayingButtons(false);
+        return;
+      }
+
+      authMessage("Ingelogd. Je gegevens worden geladen.");
+
+      try {
+        await loadPlayer();
+        authMessage("Je bent ingelogd. Veel speelplezier!");
+      } catch (error) {
+        console.error("Accountgegevens laden is mislukt:", error);
+        authMessage("Je account kon niet worden geladen: " + (error?.message || "onbekende fout"), true);
+      }
+    }
+
+    let lastHandledUserId = undefined;
+    let sessionQueue = Promise.resolve();
+
+    function queueSessionHandling(session) {
+      const nextUserId = session?.user?.id ?? null;
+
+      sessionQueue = sessionQueue.then(async () => {
+        if (nextUserId === lastHandledUserId && !isPasswordRecovery) return;
+        lastHandledUserId = nextUserId;
+        await handleSession(session);
+      }).catch(error => {
+        console.error("Supabase-sessie verwerken is mislukt:", error);
+        authMessage("Inloggen is gelukt, maar de sessie kon niet worden geladen. Vernieuw de pagina.", true);
+      });
+    }
+
+    function handValue(hand) {
+      let total = 0;
+      let aces = 0;
+
+      for (const card of hand) {
+        if (!card || card.hidden) continue;
+
+        if (card.rank === "A") {
+          total += 11;
+          aces++;
+        } else if (["K", "Q", "J"].includes(card.rank)) {
+          total += 10;
+        } else {
+          total += Number(card.rank);
+        }
+      }
+
+      while (total > 21 && aces > 0) {
+        total -= 10;
+        aces--;
+      }
+
+      return total;
+    }
+
+    function cardElement(card, hidden = false) {
+      const el = document.createElement("div");
+
+      if (hidden || card?.hidden) {
+        el.className = "card back";
+        el.textContent = "★";
+        return el;
+      }
+
+      el.className = "card" + (card.red ? " red" : "");
+
+      const top = document.createElement("span");
+      top.textContent = card.rank + card.suit;
+
+      const middle = document.createElement("span");
+      middle.className = "middle";
+      middle.textContent = card.suit;
+
+      const bottom = document.createElement("span");
+      bottom.className = "bottom";
+      bottom.textContent = card.rank + card.suit;
+
+      el.append(top, middle, bottom);
+      return el;
+    }
+
+    function renderHand(containerId, hand, hideSecond = false) {
+      const container = $(containerId);
+      container.replaceChildren();
+
+      hand.forEach((card, index) => {
+        container.append(cardElement(card, hideSecond && index === 1));
+      });
+    }
+
+    function render() {
+      renderHand("player-cards", playerHand);
+      renderHand("dealer-cards", dealerHand, hideDealerCard);
+
+      $("player-total").textContent =
+        playerHand.length ? `(${handValue(playerHand)})` : "";
+
+      $("dealer-total").textContent = !dealerHand.length
+        ? ""
+        : hideDealerCard
+          ? `(${handValue([dealerHand[0]])} + ?)`
+          : `(${handValue(dealerHand)})`;
+
+      updateBalance();
+    }
+
+    function updateBonusTimer() {
+      if (!currentUser) return;
+
+      const elapsed = Date.now() - lastBonusAt;
+      const canClaim = elapsed >= BONUS_INTERVAL && !isClaiming;
+      const claimButton = $("claim-bonus");
+
+      if (canClaim) {
+        $("bonus-message").textContent = "Je hebt 10 chips klaar om te claimen!";
+        claimButton.disabled = false;
+        claimButton.textContent = "Claim 10 chips";
+      } else {
+        $("bonus-message").textContent = "Je krijgt elke 10 minuten 10 gratis chips. Claim ze handmatig.";
+        claimButton.disabled = true;
+        claimButton.textContent = "Claim bonus";
+      }
+
+      const secondsLeft = Math.ceil(Math.max(0, BONUS_INTERVAL - elapsed) / 1000);
+      $("bonus-timer").textContent =
+        `Volgende bonus over: ${String(Math.floor(secondsLeft / 60)).padStart(2, "0")}:${String(secondsLeft % 60).padStart(2, "0")}`;
+    }
+
+    async function claimBonus() {
+      if (!currentUser || isClaiming) return;
+
+      isClaiming = true;
+      $("claim-bonus").disabled = true;
+      $("claim-bonus").textContent = "Bezig...";
+
+      try {
+        await gameAction("claim_bonus");
+        await refreshLeaderboard();
+      } catch (error) {
+        $("bonus-message").textContent =
+          error?.message || "Bonus claimen is mislukt.";
+      } finally {
+        isClaiming = false;
+        updateBonusTimer();
+      }
+    }
+
+    async function startGame() {
+      if (!currentUser || gameActive) return;
+
+      try {
+        const result = await gameAction("start", Number($("bet").value));
+        if (!result.active) await refreshLeaderboard();
+      } catch (error) {
+        setStatus(error?.message || "Het spel starten is mislukt.");
+      }
+    }
+
+    async function hit() {
+      if (!gameActive) return;
+
+      try {
+        const result = await gameAction("hit");
+        if (!result.active) await refreshLeaderboard();
+      } catch (error) {
+        setStatus(error?.message || "Kaart pakken is mislukt.");
+      }
+    }
+
+    async function stand() {
+      if (!gameActive) return;
+
+      try {
+        await gameAction("stand");
+        await refreshLeaderboard();
+      } catch (error) {
+        setStatus(error?.message || "Stoppen is mislukt.");
+      }
+    }
+
+    $("terms-open").addEventListener("click", () => $("terms-dialog").showModal());
+    $("terms-close").addEventListener("click", () => $("terms-dialog").close());
+    $("terms-dialog").addEventListener("click", event => {
+      if (event.target === $("terms-dialog")) $("terms-dialog").close();
     });
-    if (error) return authMessage(error.message, true);
-    if (data.session) {
-      authMessage("Account aangemaakt. Je bent ingelogd.");
-    } else {
-      authMessage("Account aangemaakt. Controleer je e-mail om je account te bevestigen. Daarna kun je inloggen.");
+
+    $("login-button").addEventListener("click", signIn);
+    $("signup-button").addEventListener("click", signUp);
+    $("forgot-password-button").addEventListener("click", sendPasswordReset);
+    $("save-new-password-button").addEventListener("click", updatePassword);
+
+    $("logout-button").addEventListener("click", async () => {
+      const { error } = await supabase.auth.signOut();
+      if (error) authMessage(error.message, true);
+    });
+
+    $("start").addEventListener("click", startGame);
+    $("hit").addEventListener("click", hit);
+    $("stand").addEventListener("click", stand);
+    $("claim-bonus").addEventListener("click", claimBonus);
+
+    $("start-playing").addEventListener("click", () => {
+      if (!currentUser) return;
+      $("welcome-screen").hidden = true;
+      $("game-screen").hidden = false;
+      refreshLeaderboard();
+      updateBonusTimer();
+    });
+
+    $("back-to-welcome").addEventListener("click", () => {
+      $("game-screen").hidden = true;
+      $("welcome-screen").hidden = false;
+    });
+
+    supabase.auth.onAuthStateChange((event, session) => {
+      setTimeout(() => {
+        if (event === "PASSWORD_RECOVERY") showPasswordResetPanel();
+        queueSessionHandling(session);
+      }, 0);
+    });
+
+    setInterval(updateBonusTimer, 1000);
+
+    if (checkUrlForRecovery()) showPasswordResetPanel();
+
+    try {
+      const { data, error } = await supabase.auth.getSession();
+      if (error) throw error;
+      queueSessionHandling(data?.session ?? null);
+    } catch (error) {
+      console.error("Supabase kon niet worden gestart:", error);
+      authMessage(
+        "Verbinding met Supabase mislukt: " + (error?.message || "controleer je internet en projectinstellingen"),
+        true
+      );
     }
-  } catch (error) {
-    console.error("Account aanmaken is mislukt:", error);
-    authMessage("Account aanmaken is mislukt: " + (error?.message || "onbekende fout"), true);
-  }
-}
-
-async function handleSession(session) {
-  currentUser = session?.user ?? null;
-  const loggedIn = Boolean(currentUser);
-
-  if (isPasswordRecovery || checkUrlForRecovery()) {
-    showPasswordResetPanel();
-    return;
-  }
-
-  $("start-playing").disabled = !loggedIn;
-  $("logout-button").hidden = !loggedIn;
-  $("auth-panel").hidden = loggedIn;
-
-  if (!loggedIn) {
-    $("game-screen").hidden = true;
-    $("welcome-screen").hidden = false;
-    $("balance").textContent = "—";
-    gameActive = false;
-    setPlayingButtons(false);
-    return;
-  }
-
-  authMessage("Ingelogd. Je gegevens worden geladen.");
-  try {
-    await loadPlayer();
-    authMessage("Je bent ingelogd. Veel speelplezier!");
-  } catch (error) {
-    console.error("Accountgegevens laden is mislukt:", error);
-    const detail = error?.message || "onbekende fout";
-    authMessage("Je account kon niet worden geladen: " + detail, true);
-  }
-}
-
-let lastHandledUserId = undefined;
-let sessionQueue = Promise.resolve();
-function queueSessionHandling(session) {
-  const nextUserId = session?.user?.id ?? null;
-  sessionQueue = sessionQueue.then(async () => {
-    if (nextUserId === lastHandledUserId && !isPasswordRecovery) return;
-    lastHandledUserId = nextUserId;
-    await handleSession(session);
-  }).catch(error => {
-    console.error("Supabase-sessie verwerken is mislukt:", error);
-    authMessage("Inloggen is gelukt, maar de sessie kon niet worden geladen. Vernieuw de pagina.", true);
-  });
-}
-
-$("terms-open").addEventListener("click", () => $("terms-dialog").showModal());
-$("terms-close").addEventListener("click", () => $("terms-dialog").close());
-$("terms-dialog").addEventListener("click", event => {
-  if (event.target === $("terms-dialog")) $("terms-dialog").close();
-});
-
-$("login-button").addEventListener("click", signIn);
-$("signup-button").addEventListener("click", signUp);
-$("forgot-password-button").addEventListener("click", sendPasswordReset);
-$("save-new-password-button").addEventListener("click", updatePassword);
-$("logout-button").addEventListener("click", async () => {
-  try {
-    await savePlayer();
-    const { error } = await supabase.auth.signOut();
-    if (error) authMessage(error.message, true);
-  } catch (error) {
-    console.error("Uitloggen is mislukt:", error);
-    authMessage("Uitloggen is mislukt: " + (error?.message || "onbekende fout"), true);
-  }
-});
-
-supabase.auth.onAuthStateChange((event, session) => {
-  setTimeout(() => {
-    if (event === "PASSWORD_RECOVERY") {
-      showPasswordResetPanel();
-    }
-    queueSessionHandling(session);
-  }, 0);
-});
-
-function updateBalance() {
-  $("balance").textContent = chips;
-  const betSelect = $("bet");
-  [...betSelect.options].forEach(option => option.disabled = Number(option.value) > chips);
-  if (Number(betSelect.value) > chips) {
-    const available = [10,5,2,1].find(n => n <= chips);
-    if (available) betSelect.value = String(available);
-  }
-  $("start").disabled = gameActive || chips < 1;
-}
-
-/* ========== BONUS: ALTIJD PRECIES 10 CHIPS ========== */
-function updateBonusTimer() {
-  if (!currentUser) return;
-
-  const elapsed = Date.now() - lastBonusAt;
-  const canClaim = elapsed >= BONUS_INTERVAL && !isClaiming;
-  const claimBtn = $("claim-bonus");
-
-  if (canClaim) {
-    $("bonus-message").textContent = "Je hebt 10 chips klaar om te claimen!";
-    claimBtn.disabled = false;
-    claimBtn.textContent = "Claim 10 chips";
-  } else {
-    $("bonus-message").textContent = "Je krijgt elke 10 minuten 10 gratis chips. Claim ze handmatig.";
-    claimBtn.disabled = true;
-    claimBtn.textContent = "Claim bonus";
-  }
-
-  const timeToNext = Math.max(0, BONUS_INTERVAL - elapsed);
-  const secondsLeft = Math.ceil(timeToNext / 1000);
-  $("bonus-timer").textContent = `Volgende bonus over: ${String(Math.floor(secondsLeft / 60)).padStart(2,"0")}:${String(secondsLeft % 60).padStart(2,"0")}`;
-}
-
-async function claimBonus() {
-  if (!currentUser || isClaiming) return;
-
-  const elapsed = Date.now() - lastBonusAt;
-  if (elapsed < BONUS_INTERVAL) return;
-
-  isClaiming = true;
-  const claimBtn = $("claim-bonus");
-  claimBtn.disabled = true;
-  claimBtn.textContent = "Bezig...";
-
-  // Altijd precies 10 chips
-  chips += BONUS_AMOUNT;
-  lastBonusAt = Date.now();
-
-  updateBalance();
-  $("bonus-message").textContent = "Bonus ontvangen: +10 chips!";
-
-  try {
-    await savePlayer();
-    await refreshLeaderboard();
-  } catch (error) {
-    console.error("Bonus opslaan mislukt:", error);
-  } finally {
-    isClaiming = false;
-    updateBonusTimer();
-  }
-}
-
-function makeDeck() {
-  deck = [];
-  for (const suit of SUITS) for (const rank of RANKS) deck.push({suit:suit.symbol,red:suit.red,rank});
-  for (let i = deck.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [deck[i],deck[j]] = [deck[j],deck[i]];
-  }
-}
-function drawCard() {
-  if (!deck.length) makeDeck();
-  return deck.pop();
-}
-function handValue(hand) {
-  let total = 0, aces = 0;
-  for (const card of hand) {
-    if (card.rank === "A") { total += 11; aces++; }
-    else if (["K","Q","J"].includes(card.rank)) total += 10;
-    else total += Number(card.rank);
-  }
-  while (total > 21 && aces > 0) { total -= 10; aces--; }
-  return total;
-}
-function isBlackjack(hand) { return hand.length === 2 && handValue(hand) === 21; }
-function cardElement(card, hidden = false) {
-  const el = document.createElement("div");
-  if (hidden) { el.className = "card back"; el.textContent = "★"; return el; }
-  el.className = "card" + (card.red ? " red" : "");
-  const top = document.createElement("span"); top.textContent = card.rank + card.suit;
-  const middle = document.createElement("span"); middle.className = "middle"; middle.textContent = card.suit;
-  const bottom = document.createElement("span"); bottom.className = "bottom"; bottom.textContent = card.rank + card.suit;
-  el.append(top,middle,bottom);
-  return el;
-}
-function renderHand(containerId, hand, hideSecond = false) {
-  const container = $(containerId);
-  container.replaceChildren();
-  hand.forEach((card,index) => container.append(cardElement(card, hideSecond && index === 1)));
-}
-function render() {
-  renderHand("player-cards",playerHand);
-  renderHand("dealer-cards",dealerHand,hideDealerCard);
-  $("player-total").textContent = playerHand.length ? `(${handValue(playerHand)})` : "";
-  $("dealer-total").textContent = dealerHand.length
-    ? (hideDealerCard ? `(${handValue([dealerHand[0]])} + ?)` : `(${handValue(dealerHand)})`) : "";
-  updateBalance();
-}
-function setStatus(message) { $("status").textContent = message; }
-function setPlayingButtons(active) {
-  $("hit").disabled = !active;
-  $("stand").disabled = !active;
-  $("start").disabled = active || chips < 1;
-}
-function startGame() {
-  if (!currentUser || gameActive || chips < 1) return;
-  const bet = Number($("bet").value);
-  if (bet > chips) return setStatus("Je hebt niet genoeg chips voor deze inzet.");
-  currentBet = bet;
-  chips -= currentBet;
-  makeDeck();
-  playerHand = [drawCard(),drawCard()];
-  dealerHand = [drawCard(),drawCard()];
-  gameActive = true;
-  hideDealerCard = true;
-  render();
-  setPlayingButtons(true);
-
-  if (isBlackjack(playerHand) || isBlackjack(dealerHand)) {
-    hideDealerCard = false;
-    render();
-    if (isBlackjack(playerHand) && isBlackjack(dealerHand)) finishRound("Gelijkspel! Jullie hebben allebei blackjack.",currentBet);
-    else if (isBlackjack(playerHand)) finishRound("Blackjack! Je wint 1,5 keer je inzet extra.",currentBet * 2.5);
-    else finishRound("De dealer heeft blackjack. Je verliest.",0);
-  } else {
-    setStatus(`Je hebt ${currentBet} chips ingezet. Wat doe je?`);
-  }
-  savePlayer().then(refreshLeaderboard);
-}
-function hit() {
-  if (!gameActive) return;
-  playerHand.push(drawCard());
-  render();
-  const total = handValue(playerHand);
-  if (total > 21) finishRound("Bust! Je bent boven de 21. Je verliest.",0);
-  else if (total === 21) stand();
-  else setStatus(`Je hebt ${total}. Nog een kaart of stoppen?`);
-}
-function stand() {
-  if (!gameActive) return;
-  hideDealerCard = false;
-  while (handValue(dealerHand) < 17) dealerHand.push(drawCard());
-  render();
-  const player = handValue(playerHand), dealer = handValue(dealerHand);
-  if (dealer > 21) finishRound("De dealer is bust! Jij wint.",currentBet * 2);
-  else if (player > dealer) finishRound("Jij wint!",currentBet * 2);
-  else if (player < dealer) finishRound("De dealer wint. Volgende keer beter!",0);
-  else finishRound("Gelijkspel! Je inzet krijg je terug.",currentBet);
-}
-async function finishRound(message,payout) {
-  chips += Math.floor(payout);
-  gameActive = false;
-  hideDealerCard = false;
-  render();
-  setPlayingButtons(false);
-  setStatus(`${message} ${payout > 0 ? `Je ontvangt ${Math.floor(payout)} chips.` : ""} Je hebt nu ${chips} chips.`);
-  await savePlayer();
-  await refreshLeaderboard();
-}
-$("start").addEventListener("click",startGame);
-$("hit").addEventListener("click",hit);
-$("stand").addEventListener("click",stand);
-$("claim-bonus").addEventListener("click", claimBonus);
-$("start-playing").addEventListener("click",() => {
-  if (!currentUser) return;
-  $("welcome-screen").hidden = true;
-  $("game-screen").hidden = false;
-  refreshLeaderboard();
-  updateBonusTimer();
-});
-$("back-to-welcome").addEventListener("click",() => {
-  $("game-screen").hidden = true;
-  $("welcome-screen").hidden = false;
-});
-
-setInterval(updateBonusTimer, 1000);
-
-if (checkUrlForRecovery()) {
-  showPasswordResetPanel();
-}
-
-try {
-  const { data, error } = await supabase.auth.getSession();
-  if (error) throw error;
-  queueSessionHandling(data?.session ?? null);
-} catch (error) {
-  console.error("Supabase kon niet worden gestart:", error);
-  authMessage("Verbinding met Supabase mislukt: " + (error?.message || "controleer je internet en projectinstellingen"), true);
-}
-</script>
+  </script>
 </body>
 </html>
